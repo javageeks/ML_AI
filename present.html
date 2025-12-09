@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intaractive Guid: Enterprise RAG with Spring AI & Langchain4j</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+	<link rel="preconnect" href="https://fonts.googleapi.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapi.com/css2?family=Inter:wght@400;500;600;700$display=swap" >
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem; /* Matches the height of the sticky header */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #E5E7EB;
+        }
+        .header-bar {
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid #1F2937;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #374151;
+        }
+        .nav-tab {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            color: #9CA3AF;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .nav-tab:hover {
+            color: #F9FAFB;
+        }
+        .nav-tab.active {
+            border-bottom-color: #2563EB;
+            color: #60A5FA;
+        }
+        .content-section {
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        .code-block {
+            background-color: #111827;
+            color: #E5E7EB;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #1F2937;
+            color: #9CA3AF;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #374151;
+            color: #D1D5DB;
+        }
+        .content-tabs {
+            display: flex;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .content-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            color: #9CA3AF;
+        }
+        .content-tab:hover {
+            color: #F9FAFB;
+        }
+        .content-tab.active {
+            border-bottom-color: #2563EB;
+            color: #60A5FA;
+        }
+        .two-column-card {
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #374151;
+            background-color: #1F2937;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+        .how-it-works-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .how-it-works-content {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .flow-diagram-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .details-panel {
+            flex: 1;
+            padding: 1.5rem;
+            background-color: #111827;
+            border-radius: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #374151;
+        }
+        .flow-step-btn {
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .flow-step-btn.active {
+            border-color: #2563EB;
+            color: white !important;
+        }
+        @media (max-width: 768px) {
+            .how-it-works-content {
+                flex-direction: column;
+            }
+            .details-panel {
+                width: 100%;
+            }
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #1F2937;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 1rem;
+            border: 1px solid #374151;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #111827;
+            font-weight: 600;
+            color: #60A5FA;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #111827;
+        }
+        .btn-blue {
+            background-color: #2563EB;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-blue:hover {
+            background-color: #1D4ED8;
+        }
+
+        /* Adjusted styles for the architecture diagrams */
+        .architecture-diagram-container .text-sm {
+            font-size: 0.8rem;
+        }
+        .architecture-diagram-container .py-2 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        .architecture-diagram-container .px-4 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- Header & Horizontal Navigation (Single Line) -->
+    <header class="header-bar">
+		<div id="nav-the-problem">Enterprise RAG With Java</div>
+        <nav class="nav-tabs border-0">
+            <a href="#the-problem" class="nav-tab" id="nav-the-problem">The Problem</a>
+            <a href="#how-it-works" class="nav-tab" id="nav-how-it-works">How it works</a>
+            <a href="#architecture" class="nav-tab" id="nav-architecture">Architecture</a>
+            <a href="#lets-build-it" class="nav-tab" id="nav-lets-build-it">Let's Build It</a>
+            <a href="#enterprise-ready" class="nav-tab" id="nav-enterprise-ready">Enterprise Ready</a>
+            <a href="#key-takeaways" class="nav-tab" id="nav-key-takeaways">Key Takeaways</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Area with max-width for better readability on large screens -->
+    <div class="px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
+        
+        <!-- The Problem Section -->
+        <section id="the-problem" class="content-section">
+            <div class="w-full">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column: The Problem -->
+                    <div class="two-column-card">
+                        <h4 class="text-xl font-bold text-[#F87171] mb-4 text-center">The Problem: The Knowledge Gap</h4>
+                        <p class="text-[#E5E7EB] mb-4">LLMs are trained on a fixed corpus of public data. They cannot access private, real-time, or domain-specific information, leading to inaccurate responses or "hallucinations."</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code>// A query about a company's internal data
+LLM.ask("What was the revenue for Q3 2024?");
+// LLM response: "I cannot provide real-time or private company information."</code></pre>
+                        </div>
+                    </div>
+                    <!-- Right Column: The Solution -->
+                    <div class="two-column-card">
+                        <h4 class="text-xl font-bold text-[#60A5FA] mb-4 text-center">The Solution: Retrieval-Augmented Generation (RAG)</h4>
+                        <p class="text-[#E5E7EB] mb-4">RAG addresses the knowledge gap by connecting LLMs to your private data. It retrieves relevant information and feeds it to the LLM as context, ensuring grounded, accurate, and citable responses.</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code>// RAG workflow with private data
+// 1. Fetch relevant docs from your database
+List&lt;Document&gt; docs = retriever.getRelevantDocs(query);
+// 2. LLM generates a response using the context from 'docs'
+LLM.generate(prompt + docs);</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works Section -->
+        <section id="how-it-works" class="content-section">
+            <div class="w-full">
+                <div class="how-it-works-layout">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold mb-2 text-[#60A5FA]">How It Works: The RAG Flow</h3>
+                        <p class="text-[#E5E7EB]">Click on each step below to see the explanation and corresponding code logic.</p>
+                    </div>
+                    <div class="how-it-works-content mt-8">
+                        <div class="flow-diagram-panel">
+                            <!-- Data Preparation Phase -->
+                            <div class="text-[#9CA3AF] font-bold text-lg text-center">
+                                (Data Preparation Phase)
+                            </div>
+                            <div class="flex flex-wrap justify-center md:flex-nowrap items-center space-x-2">
+                                <div class="flex items-center space-x-2">
+                                    <button class="flow-step-btn px-4 py-2 rounded-lg bg-[#374151] hover:bg-[#4B5563] transition-colors text-[#F9FAFB]" data-step="Ingest" onclick="showFlowStepContent('Ingest')">Ingest</button>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#9CA3AF]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="flow-step-btn px-4 py-2 rounded-lg bg-[#374151] hover:bg-[#4B5563] transition-colors text-[#F9FAFB]" data-step="Split" onclick="showFlowStepContent('Split')">Split</button>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#9CA3AF]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="flow-step-btn px-4 py-2 rounded-lg bg-[#374151] hover:bg-[#4B5563] transition-colors text-[#F9FAFB]" data-step="Embed" onclick="showFlowStepContent('Embed')">Embed</button>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#9CA3AF]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="flow-step-btn px-4 py-2 rounded-lg bg-[#374151] hover:bg-[#4B5563] transition-colors text-[#F9FAFB]" data-step="Store" onclick="showFlowStepContent('Store')">Store</button>
+                                </div>
+                            </div>
+                            <!-- At Query Time -->
+                            <div class="text-[#9CA3AF] font-bold text-lg text-center mt-6">
+                                (At Query Time)
+                            </div>
+                            <div class="flex justify-center">
+                                <button class="flow-step-btn px-4 py-2 rounded-lg bg-[#374151] hover:bg-[#4B5563] transition-colors text-[#F9FAFB]" data-step="Retrieve & Generate" onclick="showFlowStepContent('Retrieve & Generate')">Retrieve & Generate</button>
+                            </div>
+                        </div>
+                        <div id="details-panel" class="details-panel">
+                            <h4 class="text-xl font-bold text-[#F9FAFB] mb-4">Select a step</h4>
+                            <p class="text-[#9CA3AF]">Click on a step in the diagram to learn more about it.</p>
+                            <div id="code-panel" class="code-block hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="content-section">
+            <div class="w-full">
+                <h3 class="text-2xl font-bold mb-4 text-[#60A5FA] text-center">Architecture Comparison: Direct LLM vs. RAG</h3>
+                <p class="text-[#E5E7EB] mb-8">This section compares a simple, direct LLM call with a robust RAG implementation, highlighting the key differences in their architecture and use cases.</p>
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Flow 1: Direct LLM Call -->
+                    <div class="flex-1 two-column-card">
+                        <h4 class="text-xl font-bold text-center mb-4 text-[#F87171]">Flow 1: Direct LLM Call ('/summarize')</h4>
+                        <!-- Diagram -->
+                        <div class="architecture-diagram-container flex flex-col items-center space-y-2">
+                            <div class="bg-[#1D4ED8] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">React UI</div>
+                            <div class="text-xl text-gray-400 font-bold">&darr;</div>
+                            <div class="bg-[#10B981] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">Spring Boot: '/summarize'</div>
+                            <div class="text-xl text-gray-400 font-bold">&darr;</div>
+                            <div class="bg-[#6B7280] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">OpenAI LLM</div>
+                        </div>
+                        <div class="mt-8">
+                            <h5 class="text-lg font-bold text-[#60A5FA] mb-2">How it works:</h5>
+                            <p class="text-sm text-[#E5E7EB]">The user's request is sent directly to the LLM via a dedicated endpoint. The LLM processes the input and returns a response based on its pre-trained knowledge, without any external context.</p>
+                            <h5 class="text-lg font-bold text-[#60A5FA] mt-4 mb-2">Use Case:</h5>
+                            <p class="text-sm text-[#E5E7EB]">This approach is suitable for general-purpose tasks like summarization, translation, or creative content generation where domain-specific knowledge is not required. It is simple to implement and quick to deploy.</p>
+                        </div>
+                    </div>
+
+                    <!-- Flow 2: RAG Implementation -->
+                    <div class="flex-1 two-column-card">
+                        <h4 class="text-xl font-bold text-center mb-4 text-[#60A5FA]">Flow 2: RAG Implementation ('/qa')</h4>
+                        <!-- Diagram -->
+                        <div class="architecture-diagram-container flex flex-col items-center space-y-2">
+                            <div class="bg-[#1D4ED8] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">React UI</div>
+                            <div class="text-xl text-gray-400 font-bold">&darr;</div>
+                            <div class="bg-[#10B981] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">Spring Boot: '/qa'</div>
+                            <div class="text-xl text-gray-400 font-bold">&darr;</div>
+                            <div class="bg-[#FCD34D] text-[#1F2937] font-medium text-sm py-2 px-4 rounded-lg shadow-md w-full text-center">RAG Logic</div>
+                            <div class="text-xl text-gray-400 font-bold">&darr;</div>
+                            <div class="flex justify-between items-center w-full space-x-2">
+                                <div class="bg-[#6B7280] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md flex-1 text-center">PostgreSQL</div>
+                                <div class="flex items-center">
+                                    <div class="text-gray-400 text-xl">↔</div>
+                                </div>
+                                <div class="bg-[#6B7280] text-white font-medium text-sm py-2 px-4 rounded-lg shadow-md flex-1 text-center">OpenAI LLM</div>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <h5 class="text-lg font-bold text-[#60A5FA] mb-2">How it works:</h5>
+                            <p class="text-sm text-[#E5E7EB]">The user's query triggers a retrieval process. The RAG logic uses the query to search a vector database (PostgreSQL with pgvector) for relevant information. The retrieved context is then passed to the LLM along with the query to generate a grounded response.</p>
+                            <h5 class="text-lg font-bold text-[#60A5FA] mt-4 mb-2">Use Case:</h5>
+                            <p class="text-sm text-[#E5E7EB]">This is ideal for tasks that require access to private or up-to-date information, such as building a customer support chatbot, a financial analysis tool, or a Q&A system over a company's internal documents. It prevents hallucinations and provides citable answers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Let's Build It Section -->
+        <section id="lets-build-it" class="content-section">
+            <div class="w-full">
+                <h3 class="text-2xl font-bold mb-4 text-[#60A5FA] text-center">Let's Build It</h3>
+                <p class="text-[#E5E7EB] mb-6">This section provides the practical details to start building your own RAG application. Use the tabs below to explore dependencies, code structure, and useful commands.</p>
+                <div class="content-tabs" id="build-tabs-container">
+                    <div class="content-tab" id="tab-dependencies" onclick="showBuildContent('dependencies')">1. Dependencies</div>
+                    <div class="content-tab" id="tab-configuration" onclick="showBuildContent('configuration')">2. Configuration</div>
+                    <div class="content-tab" id="tab-data-ingestion" onclick="showBuildContent('data-ingestion')">3. Data Ingestion</div>
+                    <div class="content-tab" id="tab-ai-controller" onclick="showBuildContent('ai-controller')">4. AI Controller</div>
+                    <div class="content-tab" id="tab-rag-service" onclick="showBuildContent('rag-service')">5. RAG Service</div>
+                </div>
+                <div id="build-content-container" class="mt-4">
+                    <!-- Content will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Enterprise Ready Section -->
+        <section id="enterprise-ready" class="content-section">
+            <div class="w-full">
+                <h3 class="text-2xl font-bold mb-2 text-[#60A5FA] text-center">From Demo to Enterprise</h3>
+                <p class="text-sm font-light text-[#9CA3AF] mb-6 text-center">Transitioning a RAG application from a simple prototype to a production-ready system requires a shift in mindset and architecture.</p>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>COMPONENT</th>
+                            <th>DEMO IMPLEMENTATION</th>
+                            <th>ENTERPRISE-GRADE SOLUTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">Vector Store</td>
+                            <td>PostgreSQL with `pgvector` on a local machine.</td>
+                            <td>Managed, distributed vector database (e.g., Pinecone, Weaviate, Milvus).</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Ingestion</td>
+                            <td>Manual, on-demand ingestion via `ApplicationRunner`.</td>
+                            <td>Automated, scheduled pipeline with change data capture (CDC) and error handling.</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Security</td>
+                            <td>API keys in `application.yml`. No data access control.</td>
+                            <td>Secure secret management (e.g., Vault), OAuth/JWT for access control, role-based access to data sources.</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Scalability</td>
+                            <td>Single Spring Boot instance.</td>
+                            <td>Microservices architecture deployed on Kubernetes, load balancing, asynchronous processing for ingestion.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Key Takeaways Section -->
+        <section id="key-takeaways" class="content-section">
+            <div class="w-full">
+                <h3 class="text-2xl font-bold mb-4 text-[#60A5FA] text-center">Key Takeaways</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <!-- Grounded & Factual -->
+                    <div class="p-6 bg-[#1F2937] rounded-lg shadow-sm">
+                        <h4 class="font-bold text-lg text-[#60A5FA] mb-2">Grounded & Factual</h4>
+                        <p class="text-sm text-[#E5E7EB]">RAG prevents LLM hallucinations by retrieving and providing context from your own trusted data sources. This ensures the generated answers are accurate, verifiable, and citable.</p>
+                    </div>
+                    <!-- Secure & Private -->
+                    <div class="p-6 bg-[#1F2937] rounded-lg shadow-sm">
+                        <h4 class="font-bold text-lg text-[#60A5FA] mb-2">Secure & Private</h4>
+                        <p class="text-sm text-[#E5E7EB]">Your private, sensitive data never needs to be used for model fine-tuning. RAG allows you to keep your data secure in your own environment, sending only the retrieved, relevant snippets to the LLM.</p>
+                    </div>
+                    <!-- Always Current -->
+                    <div class="p-6 bg-[#1F2937] rounded-lg shadow-sm">
+                        <h4 class="font-bold text-lg text-[#60A5FA] mb-2">Always Current</h4>
+                        <p class="text-sm text-[#E5E7EB]">Unlike pre-trained models with static knowledge, a RAG system can be easily updated in real-time. Simply ingest new or changed documents into your vector store to ensure the LLM has access to the latest information.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Data for the main presentation sections
+        const presentationContent = {
+            'how-it-works': {
+                flow: {
+                    'Ingest': {
+                        description: 'The first step is to ingest documents from various sources like PDFs, web pages, or databases. The ingestion pipeline reads this raw data to prepare it for further processing.',
+                        code: `@Bean
+ApplicationRunner dataIngestor(VectorStore vectorStore) {
+  return args -> {
+    PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(new ClassPathResource("data/policy.pdf"));
+    List<Document> documents = pdfReader.get();
+    ...
+  };`
+                    },
+                    'Split': {
+                        description: 'Documents are often too large to fit within the LLM’s context window. The splitting phase breaks down large documents into smaller, manageable chunks or segments.',
+                        code: `// Example: Split a document into chunks
+List<TextSegment> segments = DocumentSplitter.split(doc);`
+                    },
+                    'Embed': {
+                        description: 'Each text chunk is converted into a numerical vector (embedding) using a powerful embedding model. These embeddings capture the semantic meaning of the text.',
+                        code: `// Example: Convert text to embeddings
+EmbeddingModel model = new BGE_M3_EmbeddingModel();
+List<Embedding> embeddings = model.embed(segments);`
+                    },
+                    'Store': {
+                        description: 'The numerical vectors are stored in a vector database, like a vector store. This specialized database is optimized for quick and efficient similarity searches.',
+                        code: `// Omitted for brevity`
+                    },
+                    'Retrieve & Generate': {
+                        description: 'When a user asks a question, the system converts the query into a vector and performs a similarity search in the vector store to find the most relevant document chunks. The retrieved documents are then combined with the original user query to create a new, "augmented" prompt. The LLM uses this context to generate a grounded and accurate answer.',
+                        code: `// 1. Retrieve relevant documents
+List<Document> relevantDocs = this.vectorStore.similaritySearch(question);
+String context = relevantDocs.stream()
+    .map(document::getContent)
+    .collect(Collectors.joining(System.lineSeparator()));
+
+// 2. Augment the prompt with the context
+PromptTemplate promptTemplate = new PromptTemplate("""
+Answer the question based only on the provided context.
+CONTEXT: {context}
+QUESTION: {question}
+""");
+Prompt prompt = promptTemplate.create(Map.of("context", context, "question", question));
+
+// 3. Generate the answer
+return chatClient.prompt(prompt).call().content();`
+                    }
+                }
+            },
+            'lets-build-it': {
+                tabs: {
+                    'dependencies': {
+                        heading: 'Dependencies (pom.xml)',
+                        description: 'We need starters for web, OpenAI, Spring AI with pgvector, and Langchain4j. Here are the key dependencies for a Spring Boot RAG application. Add these to your pom.xml file.',
+                        code: `&lt;dependencies&gt;
+    &lt;!-- Core Spring Boot and Web --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- Spring AI for OpenAI integration --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-ai-openai-spring-boot-starter&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- Spring AI for Pgvector as a Vector Store --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-ai-pgvector-store-spring-boot-starter&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- LangChain4j for advanced RAG logic & document handling --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;
+        &lt;artifactId&gt;langchain4j&lt;/artifactId&gt;
+        &lt;version&gt;0.30.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;
+        &lt;artifactId&gt;langchain4j-open-ai&lt;/artifactId&gt;
+        &lt;version&gt;0.30.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;
+        &lt;artifactId&gt;langchain4j-embeddings-all-minilm-l6-v2-q&lt;/artifactId&gt;
+        &lt;version&gt;0.30.0&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;`
+                    },
+                    'configuration': {
+                        heading: 'Application Configuration (application.yml)',
+                        description: 'Configure your application by adding the following properties to `src/main/resources/application.yml`.',
+                        code: `spring:
+  ai:
+    openai:
+      chat:
+        enabled: true
+        api-key: \${OPENAI_API_KEY}
+      embedding:
+        enabled: true
+        api-key: \${OPENAI_API_KEY}
+    vectorstore:
+      pgvector:
+        uri: jdbc:postgresql://localhost:5432/rag_db
+        username: myuser
+        password: mypassword
+        pool:
+          enabled: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rag_db
+    username: myuser
+    password: mypassword`
+                    },
+                    'data-ingestion': {
+                        heading: 'Data Ingestion Logic (DataLoader.java)',
+                        description: 'The `DataLoader` component handles the ingestion of your private data. This example reads a PDF, splits it into manageable chunks, embeds those chunks, and stores them in your vector database on application startup.',
+                        code: `import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
+import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import java.nio.file.Path;
+
+@Component
+public class DataLoader {
+
+    @Bean
+    ApplicationRunner dataIngestor(EmbeddingStore<TextSegment> embeddingStore) {
+        return args -> {
+            // Load a document from the classpath
+            Path documentPath = new ClassPathResource("data/your-document.pdf").getFile().toPath();
+            Document document = FileSystemDocumentLoader.loadDocument(documentPath, new ApachePdfBoxDocumentParser());
+
+            // Ingest the document into the embedding store
+            EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                .documentSplitter(new DocumentSplitters.RecursiveCharacterTextSplitter())
+                .embeddingModel(new OpenAiEmbeddingModel()) // Use your preferred embedding model
+                .embeddingStore(embeddingStore)
+                .build();
+            ingestor.ingest(document);
+        };
+    }
+}`
+                    },
+                    'ai-controller': {
+                        heading: 'AI Controller (AIController.java)',
+                        description: 'The `AIController` exposes REST endpoints for your React frontend. It orchestrates the process by delegating tasks to the `RAGService`.',
+                        code: `import org.springframework.ai.chat.ChatClient;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
+@RestController
+@RequestMapping("/api")
+public class AIController {
+
+    @Autowired
+    private RAGService ragService;
+
+    @Autowired
+    private ChatClient chatClient;
+
+    @PostMapping("/summarize")
+    public String summarize(@RequestBody String text) {
+        return chatClient.call(text).content();
+    }
+
+    @PostMapping("/qa")
+    public String askQuestion(@RequestBody String question) {
+        return ragService.answerQuestion(question);
+    }
+}`
+                    },
+                    'rag-service': {
+                        heading: 'RAG Service (RAGService.java)',
+                        description: 'The `RAGService` is the heart of the application, containing the core logic for retrieving relevant information from the vector store and augmenting the prompt before calling the LLM.',
+                        code: `import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.data.document.Document;
+import org.springframework.ai.chat.ChatClient;
+import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
+
+@Service
+public class RAGService {
+
+    private final ChatClient chatClient;
+    private final EmbeddingStore<TextSegment> embeddingStore;
+
+    public RAGService(ChatClient chatClient, EmbeddingStore<TextSegment> embeddingStore) {
+        this.chatClient = chatClient;
+        this.embeddingStore = embeddingStore;
+    }
+
+    public String answerQuestion(String question) {
+        // Step 1: Find relevant documents from the vector store
+        List<Document> relevantDocs = embeddingStore.findRelevant(question, 3); // Retrieve top 3
+        String context = relevantDocs.stream()
+            .map(doc -> doc.getContent())
+            .collect(Collectors.joining(System.lineSeparator() + System.lineSeparator()));
+
+        // Step 2: Create a prompt with the context
+        String prompt = "Answer the following question based on the provided context only.\n\nContext:\n" + context + "\n\nQuestion: " + question;
+
+        // Step 3: Call the LLM with the augmented prompt
+        return chatClient.call(prompt).content();
+    }
+}`
+                    }
+                }
+            }
+        };
+
+        // Function to copy code to clipboard
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        // Function to handle content for the "How it Works" flow
+        function showFlowStepContent(step) {
+            const content = presentationContent['how-it-works'].flow[step];
+            const detailsPanel = document.getElementById('details-panel');
+            
+            detailsPanel.innerHTML = `
+                <h4 class="text-xl font-bold text-[#60A5FA] mb-4 text-center">${step}</h4>
+                <p class="text-[#E5E7EB] mb-4">${content.description}</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><code>${content.code}</code></pre>
+                </div>
+            `;
+            
+            document.querySelectorAll('.flow-step-btn').forEach(button => {
+                button.classList.remove('active', 'bg-[#2563EB]', 'text-white');
+                button.classList.add('bg-[#374151]', 'text-[#F9FAFB]');
+            });
+
+            const activeBtn = document.querySelector(`.flow-step-btn[data-step="${step}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-[#2563EB]', 'text-white');
+                activeBtn.classList.remove('bg-[#374151]', 'text-[#F9FAFB]');
+            }
+        }
+        
+        // Function to handle content for the "Let's Build It" tabs
+        function showBuildContent(key) {
+            const content = presentationContent['lets-build-it'].tabs[key];
+            const container = document.getElementById('build-content-container');
+            container.innerHTML = '';
+
+            const headingDiv = document.createElement('div');
+            headingDiv.innerHTML = `
+                <h4 class="text-lg font-bold text-[#60A5FA] mb-4">${content.heading}</h4>
+                <p class="mb-4 text-[#E5E7EB]">${content.description}</p>
+            `;
+            container.appendChild(headingDiv);
+
+            const codeBlock = document.createElement('div');
+            codeBlock.classList.add('code-block');
+            codeBlock.innerHTML = `<button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>${content.code}</code></pre>`;
+            container.appendChild(codeBlock);
+
+
+            document.querySelectorAll('.content-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`tab-${key}`).classList.add('active');
+        }
+        
+        window.onload = function() {
+            // Set initial content for "Let's Build It"
+            showBuildContent('dependencies');
+
+            // Set initial active state for nav links based on URL hash
+            const activeSection = window.location.hash.substring(1) || 'the-problem';
+            const navLink = document.getElementById(`nav-${activeSection.replace('-section', '')}`);
+            if (navLink) {
+                navLink.classList.add('active');
+            }
+        };
+
+        // Update active nav link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-tab');
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.href.includes(`#${current}`)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

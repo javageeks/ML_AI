@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: Enterprise RAG with Spring AI & Langchain4j</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 text-gray-800 p-8 md:p-12;
+        }
+
+        .presentation-container {
+            @apply max-w-7xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden;
+        }
+
+        .slide {
+            @apply min-h-screen p-8 md:p-16 flex flex-col justify-center;
+        }
+
+        .section-heading {
+            @apply text-5xl font-bold mb-8 text-center text-gray-900;
+        }
+
+        .card {
+            @apply bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200;
+        }
+
+        .code-block {
+            @apply bg-gray-900 text-white rounded-xl p-4 md:p-6 text-sm font-mono overflow-auto;
+        }
+
+        .tab-button {
+            @apply py-3 px-6 rounded-t-lg font-semibold text-gray-600 transition-colors duration-300;
+        }
+
+        .tab-button.active {
+            @apply bg-white text-blue-600 border-b-4 border-blue-600;
+        }
+
+        .tab-content {
+            @apply p-6 md:p-8 bg-white rounded-b-xl rounded-tr-xl shadow-lg border border-gray-200;
+        }
+
+        .box {
+            @apply bg-blue-500 text-white text-center p-4 rounded-xl shadow-md font-semibold;
+        }
+
+        .arrow {
+            @apply w-full h-8 flex justify-center items-center;
+        }
+
+        .arrow-line {
+            @apply w-1 bg-gray-400 h-8;
+        }
+
+        .arrow-head {
+            @apply w-0 h-0 border-l-8 border-r-8 border-t-8 border-t-gray-400 transform rotate-180;
+        }
+
+        .step {
+            @apply flex flex-col items-center text-center;
+        }
+
+        /* Custom glow effect */
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="presentation-container">
+
+        <!-- Slide 1: Title Slide -->
+        <section id="title-slide" class="slide bg-gradient-to-br from-blue-600 to-indigo-800 text-white flex-col justify-center text-center">
+            <h1 class="text-6xl md:text-8xl font-black mb-4 animate-fade-in-up">Chat with Your Data</h1>
+            <p class="text-xl md:text-2xl font-light opacity-80 animate-fade-in-up delay-100">Leveraging Spring AI, OpenAI, and pgVector</p>
+            <div class="mt-8 flex justify-center space-x-4">
+                <a href="#problem-slide" class="bg-white text-blue-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-200 transition-transform transform hover:scale-105">Get Started</a>
+                <a href="https://spring.io/projects/spring-ai" target="_blank" class="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white hover:text-blue-600 transition-colors transform hover:scale-105">Learn More</a>
+            </div>
+        </section>
+
+        <!-- Slide 2: The Problem & The Solution -->
+        <section id="problem-slide" class="slide bg-white">
+            <h2 class="section-heading">The Problem & The Solution</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="card w-full md:w-1/2 flex flex-col items-center text-center p-8 border-red-500 border-4">
+                    <h3 class="text-3xl font-bold mb-4 text-red-500">The Problem</h3>
+                    <p class="text-lg">
+                        Large Language Models (LLMs) like OpenAI's GPT are trained on vast, static datasets.
+                        This leads to several limitations:
+                    </p>
+                    <ul class="list-disc list-inside text-left mt-4 text-md space-y-2">
+                        <li>Knowledge Cutoff: The model doesn't have access to the most recent information.</li>
+                        <li>Hallucinations: The model may generate incorrect or invented information.</li>
+                        <li>Lack of Specificity: The model cannot answer questions about your private or proprietary data.</li>
+                    </ul>
+                </div>
+                <div class="card w-full md:w-1/2 flex flex-col items-center text-center p-8 border-green-500 border-4">
+                    <h3 class="text-3xl font-bold mb-4 text-green-500">The Solution: RAG</h3>
+                    <p class="text-lg">
+                        Retrieval Augmented Generation (RAG) is a technique that combines an LLM with an external
+                        knowledge base.
+                    </p>
+                    <ul class="list-disc list-inside text-left mt-4 text-md space-y-2">
+                        <li>Real-time Information: RAG provides up-to-date data from your own sources.</li>
+                        <li>Factual Grounding: It minimizes hallucinations by grounding responses in facts.</li>
+                        <li>Context-Aware: It allows the LLM to provide accurate answers about your specific data.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 3: RAG Flow Diagram -->
+        <section id="rag-flow" class="slide bg-white">
+            <h2 class="section-heading">How It Works: The RAG Flow</h2>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8 text-center">
+                
+                <!-- Ingestion Step -->
+                <div class="step flex-1">
+                    <div class="box w-40 h-20 bg-blue-600">Ingest</div>
+                    <div class="arrow"><div class="arrow-line"></div></div>
+                    <p class="text-sm mt-2">Load your documents (PDFs, text files) into the system.</p>
+                </div>
+                
+                <!-- Split Step -->
+                <div class="step flex-1">
+                    <div class="box w-40 h-20 bg-blue-600">Split</div>
+                    <div class="arrow"><div class="arrow-line"></div></div>
+                    <p class="text-sm mt-2">Break large documents into smaller, manageable chunks.</p>
+                </div>
+                
+                <!-- Embed Step -->
+                <div class="step flex-1">
+                    <div class="box w-40 h-20 bg-blue-600">Embed</div>
+                    <div class="arrow"><div class="arrow-line"></div></div>
+                    <p class="text-sm mt-2">Convert text chunks into numerical vectors (embeddings) using an embedding model.</p>
+                </div>
+
+                <!-- Store Step -->
+                <div class="step flex-1">
+                    <div class="box w-40 h-20 bg-blue-600">Store</div>
+                    <div class="arrow"><div class="arrow-line"></div></div>
+                    <p class="text-sm mt-2">Store the embeddings and original text in a vector database like pgVector.</p>
+                </div>
+                
+            </div>
+            
+            <div class="mt-12 text-center text-xl font-semibold text-gray-600">
+                <span class="p-2 border border-gray-400 rounded-full">Data Preparation Phase</span>
+            </div>
+            
+            <div class="mt-8">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
+                    <div class="step flex-1">
+                        <div class="box w-40 h-20 bg-green-600">Retrieve</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <p class="text-sm mt-2">Find the most relevant text chunks based on the user's query.</p>
+                    </div>
+                    <div class="step flex-1">
+                        <div class="box w-40 h-20 bg-green-600">Generate</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <p class="text-sm mt-2">Use the retrieved chunks as context for the LLM to generate a final answer.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 text-center text-xl font-semibold text-gray-600">
+                <span class="p-2 border border-gray-400 rounded-full">At Query Time</span>
+            </div>
+        </section>
+        
+        <!-- Slide 4: Direct vs. RAG Architecture -->
+        <section id="architecture" class="slide bg-white">
+            <h2 class="section-heading">Architectural Patterns</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Flow 1 -->
+                <div class="card w-full md:w-1/2 p-8">
+                    <h3 class="text-3xl font-bold mb-4 text-blue-600">Flow 1: Direct LLM Call</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="box w-48 h-20 bg-gray-500 text-white">User Prompt</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-blue-600">LLM</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-green-600">LLM Response</div>
+                    </div>
+                    <p class="mt-4 text-md text-center text-gray-600">
+                        The LLM generates a response solely based on its pre-trained knowledge, without external context.
+                    </p>
+                </div>
+                
+                <!-- Flow 2 (RAG) -->
+                <div class="card w-full md:w-1/2 p-8">
+                    <h3 class="text-3xl font-bold mb-4 text-green-600">Flow 2: RAG Implementation</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="box w-48 h-20 bg-gray-500 text-white">User Prompt</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-blue-600">Embedding Model</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-purple-600">Vector DB (pgVector)</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-blue-600">LLM + Context</div>
+                        <div class="arrow"><div class="arrow-line"></div></div>
+                        <div class="box w-48 h-20 bg-green-600">RAG Response</div>
+                    </div>
+                    <p class="mt-4 text-md text-center text-gray-600">
+                        The LLM augments its response with relevant context from the vector database.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 5: Let's Build It! (Tabs) -->
+        <section id="build-it" class="slide bg-white">
+            <h2 class="section-heading">Let's Build It!</h2>
+            <p class="text-lg text-center mb-8">A Quick Demo with Spring AI & Langchain4j</p>
+            
+            <!-- Tab buttons -->
+            <div class="flex justify-center border-b border-gray-200">
+                <button class="tab-button active" data-tab="tab1">Dependencies</button>
+                <button class="tab-button" data-tab="tab2">Configuration</button>
+                <button class="tab-button" data-tab="tab3">Data Ingestion</button>
+                <button class="tab-button" data-tab="tab4">AI Controller</button>
+                <button class="tab-button" data-tab="tab5">RAG Service</button>
+            </div>
+            
+            <!-- Tab content -->
+            <div class="tab-content mt-8">
+                <!-- Tab 1: Dependencies -->
+                <div id="tab1" class="tab-pane active">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">1. Dependencies</h3>
+                    <p class="mb-4">Add these dependencies to your `pom.xml` or `build.gradle` file.</p>
+                    <div class="code-block">
+                        <pre>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-ai-openai-spring-boot-starter&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-ai-pgvector-store-spring-boot-starter&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</pre>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Configuration -->
+                <div id="tab2" class="tab-pane hidden">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">2. Configuration</h3>
+                    <p class="mb-4">Configure your `application.properties` file with API keys and database details.</p>
+                    <div class="code-block">
+                        <pre># OpenAI
+spring.ai.openai.api-key=${OPENAI_API_KEY}
+spring.ai.openai.embedding.model=text-embedding-ada-002
+spring.ai.openai.chat.model=gpt-4o
+
+# PGVector
+spring.datasource.url=jdbc:postgresql://localhost:5432/rag_db
+spring.datasource.username=user
+spring.datasource.password=password
+spring.ai.vectorstore.pgvector.initialize-schema=true
+</pre>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Data Ingestion -->
+                <div id="tab3" class="tab-pane hidden">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">3. Data Ingestion</h3>
+                    <p class="mb-4">Create a service to load and ingest your documents into the vector store.</p>
+                    <div class="code-block">
+                        <pre>@Service
+public class DocumentLoaderService {
+
+    private final VectorStore vectorStore;
+    private final Resource docsResource;
+    private final PdfDocumentReader pdfReader;
+
+    public DocumentLoaderService(VectorStore vectorStore, @Value("classpath:/docs/spring-ai.pdf") Resource docsResource, PdfDocumentReader pdfReader) {
+        this.vectorStore = vectorStore;
+        this.docsResource = docsResource;
+        this.pdfReader = pdfReader;
+    }
+
+    public void ingestDocuments() {
+        if (!vectorStore.getVectorStoreMetadata().isInitialized()) {
+            vectorStore.init();
+        }
+
+        DocumentReader documentReader = new PdfDocumentReader(docsResource);
+        List&lt;Document&gt; documents = documentReader.get();
+        vectorStore.add(documents);
+        System.out.println("Documents ingested into Vector Store successfully!");
+    }
+}</pre>
+                    </div>
+                </div>
+                
+                <!-- Tab 4: AI Controller -->
+                <div id="tab4" class="tab-pane hidden">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">4. AI Controller</h3>
+                    <p class="mb-4">Expose a REST API to handle user questions and generate responses.</p>
+                    <div class="code-block">
+                        <pre>@RestController
+public class AiController {
+
+    private final ChatClient chatClient;
+
+    public AiController(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
+
+    @GetMapping("/chat")
+    public String chat(@RequestParam(value = "message", defaultValue = "What is Spring AI?") String message) {
+        return chatClient.call(message);
+    }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Tab 5: RAG Service -->
+                <div id="tab5" class="tab-pane hidden">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">5. RAG Service</h3>
+                    <p class="mb-4">The core service that orchestrates the RAG flow using Langchain4j.</p>
+                    <div class="code-block">
+                        <pre>@Service
+public class RagService {
+
+    private final ChatLanguageModel chatModel;
+    private final EmbeddingModel embeddingModel;
+    private final PgVectorEmbeddingStore embeddingStore;
+
+    public RagService(ChatLanguageModel chatModel, EmbeddingModel embeddingModel, PgVectorEmbeddingStore embeddingStore) {
+        this.chatModel = chatModel;
+        this.embeddingModel = embeddingModel;
+        this.embeddingStore = embeddingStore;
+    }
+
+    public String chatWithRag(String query) {
+        // Step 1: Ingest/Load (done separately)
+        // Step 2: Split (done by Langchain4j)
+        // Step 3: Embed (done by Langchain4j)
+        // Step 4: Store (done by Langchain4j)
+
+        // Step 5: Retrieve relevant documents
+        ContentRetriever contentRetriever = new EmbeddingStoreContentRetriever(embeddingStore, embeddingModel);
+        
+        // Step 6: Create the RAG chain and generate a response
+        PromptTemplate promptTemplate = PromptTemplate.from("""
+            Answer the user's question based on the provided context only.
+            Context: {context}
+            Question: {question}
+        """);
+
+        AiService aiService = new AiService(chatModel, contentRetriever, promptTemplate);
+        
+        return aiService.chat(query);
+    }
+}</pre>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Slide 6: Key Takeaways -->
+        <section id="takeaways" class="slide bg-white flex-col justify-center">
+            <h2 class="section-heading">Key Takeaways</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">Spring AI</h3>
+                    <p>A Java framework that simplifies building AI applications by providing a portable API for various AI models and services.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">RAG</h3>
+                    <p>A powerful technique that combines LLMs with your private data to provide grounded, up-to-date, and accurate responses.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">pgVector</h3>
+                    <p>A PostgreSQL extension that turns your relational database into a powerful vector store for efficient similarity search.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">OpenAI</h3>
+                    <p>Provides powerful LLMs (like GPT-4o) and embedding models to handle the core generation and embedding tasks.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">Langchain4j</h3>
+                    <p>A Java library that provides the core orchestration and tooling to simplify the RAG workflow, similar to its Python counterpart.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">Building Blocks</h3>
+                    <p>These technologies work together to create a robust and scalable solution for creating intelligent applications grounded in your own data.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Scroll to top button -->
+        <div class="fixed bottom-8 right-8">
+            <a href="#title-slide" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.dataset.tab;
+                    
+                    // Deactivate all tabs and panes
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.add('hidden'));
+
+                    // Activate the clicked tab and its pane
+                    tab.classList.add('active');
+                    document.getElementById(targetId).classList.remove('hidden');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
