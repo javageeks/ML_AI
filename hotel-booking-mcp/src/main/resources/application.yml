@@ -1,0 +1,49 @@
+server:
+  port: 8282
+
+spring:
+  application:
+    name: hotel-booking-mcp
+
+  datasource:
+    url: jdbc:h2:mem:hotel_db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  ai:
+    mcp:
+      server:
+        id: hotel-booking-mcp002
+        name: hotel-booking-mcp
+        version: "1.0.0"
+        type: SYNC
+        instructions: "Hotel Booking MCP Server with tools"
+        transport: sse
+        capabilities:
+          tool: true   # ✅ only what you actually provide
+
+logging:
+  level:
+    org.springframework.ai.mcp: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.web.reactive.handler: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings

@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: demo-client
+
+  ai:
+    openai:
+      api-key: ${SKO_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+      embedding:
+        options:
+          model: text-embedding-3-small
+    mcp:
+      client:
+        toolcallback:
+          enabled: true
+        transport: sse
+        sse:
+          connections:
+            ai-java-demo:
+              url: http://localhost:8181
+            hotel-booking-mcp:
+              url: http://localhost:8282
+
+logging:
+  level:
+    org.springframework.web.reactive: DEBUG
+    org.springframework.web.reactive.handler: TRACE
+    # LangChain4j core services
+    dev.langchain4j: DEBUG
+    dev.langchain4j.service: TRACE
+    dev.langchain4j.agent: TRACE
+
+    # Spring AI MCP (client + transport)
+    org.springframework.ai.mcp: DEBUG
+    io.modelcontextprotocol.client: DEBUG
+
+    # WebClient HTTP traffic (so you can see requests to MCP servers)
+    org.springframework.web.reactive.function.client: TRACE
+
+    # Reactor (async flow debugging)
+    reactor.netty.http.client: DEBUG
+    reactor.netty.http.server: DEBUG
+

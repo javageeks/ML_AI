@@ -1,0 +1,48 @@
+server:
+  port: 8181
+
+spring:
+  application:
+    name: mcp-server-demo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: Shaik   # ✅ use env var override
+    driver-class-name: org.postgresql.Driver
+
+  ai:
+    openai:
+      api-key: ${SKO_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+    mcp:
+      server:
+        id: mcp-server-demo001
+        name: mcp-server-demo
+        version: "1.0.0"
+        type: SYNC
+        instructions: "Demo MCP Server with RAG tools"
+        transport: sse
+        capabilities:
+          tool: true   # ✅ only declare what you really provide
+
+logging:
+  level:
+    org.springframework.ai.mcp: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.web.reactive.handler: TRACE
+    dev.langchain4j: DEBUG
+    dev.langchain4j.service: TRACE
+    dev.langchain4j.agent: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings
