@@ -1,2 +1,0 @@
-Project AI-JAVA-Demo is an internal initiative to modernize the development using AI-driven enterprise  applications.
-The project is expected to reduce operational costs by 12%.

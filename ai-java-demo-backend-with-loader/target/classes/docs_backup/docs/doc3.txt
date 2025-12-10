@@ -1,3 +1,0 @@
-In Our Company, For password resets, employees should use the self-service password reset tool.
-In Our Company, For hardware issues, raise a ticket via the IT Helpdesk portal.
-In Our Company, Average SLA is 24 hours for minor issues and 72 hours for hardware replacement.

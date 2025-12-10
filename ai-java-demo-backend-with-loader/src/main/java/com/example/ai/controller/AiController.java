@@ -1,9 +1,8 @@
 package com.example.ai.controller;
 
-//import com.example.ai.service.McpToolService;
-//import com.example.ai.mcp.McpToolsDemoServer;
+
 import com.example.ai.service.RagService;
-//import com.example.ai.service.RagServiceLc4j;
+import com.example.ai.service.RagServiceLc4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ public class AiController {
     //private final OpenAiChatClient chatClient;
     private final RagService ragService;
     private final ChatClient chatClient;
-    //private final RagServiceLc4j ragServiceLc4j;
+    private final RagServiceLc4j ragServiceLc4j;
 
     //private final McpToolsDemoServer mcpServer;
 
@@ -56,15 +55,6 @@ public class AiController {
 //    public String qaLc4j(@RequestParam String question,
 //                         @RequestParam(required = false) String category) {
 //        return ragServiceLc4j.answer(question, category);
-//    }
-
-//    @GetMapping("/tool")
-//    public String tool(@RequestParam String query) {
-//        return mcpTools.search(query);
-//    }
-//    @GetMapping("/tools")
-//    public List<ToolDescription> listTools() {
-//        return mcpServer.listTools();
 //    }
 }
 
