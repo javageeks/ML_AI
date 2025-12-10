@@ -1,0 +1,46 @@
+
+- Employees are entitled to 18 days of paid leave per year. 
+Leave requests must be submitted at least 7 days in advance 
+through the HR portal. 
+Unused leave cannot be carried forward to the next year.
+
+– Expense Reimbursement Guidelines
+Business expenses must be submitted within 30 days using the 
+Expense Management System. 
+Receipts are mandatory for claims above ₹500. 
+Travel reimbursements require manager approval prior to booking.
+
+
+– IT Support SOP
+For password resets, employees should use the self-service 
+password reset tool. 
+For hardware issues, raise a ticket via the IT Helpdesk portal. 
+Average SLA is 24 hours for minor issues and 72 hours for 
+hardware replacement.
+
+
+– Project X Overview
+Project X is an internal initiative to modernize the supply 
+chain using AI-driven demand forecasting. 
+The project is expected to reduce operational costs by 12%. 
+Phase 1 focuses on inventory optimization and vendor management.
+
+
+– Work From Home Guidelines
+Employees may work from home up to 2 days per week with prior 
+manager approval. 
+Employees must remain online during core hours (10 AM – 5 PM IST). 
+Company laptops and VPN usage are mandatory while working remotely.
+
+
+QA
+
+
+“How many leave days do I get per year?”
+
+“What’s the SLA for hardware issues?”
+
+“What is Project X about?”
+
+
+

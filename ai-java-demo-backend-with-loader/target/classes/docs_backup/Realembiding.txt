@@ -1,0 +1,237 @@
+package com.example.ai.service;
+
+import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.List;
+
+@Service
+public class DocumentIngestService {
+
+    private final EmbeddingClient embeddingClient;
+    private final String jdbcUrl = "jdbc:postgresql://localhost:5432/postgres";
+    private final String dbUser = "postgres";
+    private final String dbPass = "Shaik";
+
+    public DocumentIngestService(EmbeddingClient embeddingClient) {
+        this.embeddingClient = embeddingClient;
+    }
+
+    /**
+     * Embed multiple documents and insert into Postgres+pgvector table.
+     */
+    public void ingestDocuments(List<String> docs) throws Exception {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, dbUser, dbPass)) {
+            String sql = "INSERT INTO documents (content, embedding) VALUES (?, ?::vector)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                for (String doc : docs) {
+                    // 1. Get embedding from Spring AI
+                    List<Double> vector = embeddingClient.embed(doc)
+                            .getResults().get(0).getOutput();
+
+                    // 2. Convert to Postgres array string "[0.1,0.2,...]"
+                    StringBuilder sb = new StringBuilder("[");
+                    for (int i = 0; i < vector.size(); i++) {
+                        if (i > 0) sb.append(",");
+                        sb.append(vector.get(i));
+                    }
+                    sb.append("]");
+                    String vecLiteral = sb.toString();
+
+                    // 3. Bind parameters
+                    ps.setString(1, doc);
+                    ps.setString(2, vecLiteral);
+
+                    ps.addBatch();
+                }
+
+                ps.executeBatch();
+            }
+        }
+    }
+}
+
+
+
+=======================================
+
+import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.ai.embedding.EmbeddingResponse;
+import org.springframework.ai.embedding.Embedding;
+
+import java.util.List;
+
+@Service
+public class RagService {
+
+    private final ChatClient chatClient;
+    private final EmbeddingClient embeddingClient;
+    private final String jdbcUrl;
+    private final String dbUser;
+    private final String dbPass;
+
+    public RagService(ChatClient chatClient,
+                      EmbeddingClient embeddingClient,
+                      @Value("${spring.datasource.url}") String jdbcUrl,
+                      @Value("${spring.datasource.username}") String dbUser,
+                      @Value("${spring.datasource.password}") String dbPass) {
+        this.chatClient = chatClient;
+        this.embeddingClient = embeddingClient;
+        this.jdbcUrl = jdbcUrl;
+        this.dbUser = dbUser;
+        this.dbPass = dbPass;
+    }
+
+    private double[] getQueryEmbedding(String text) {
+        // Call OpenAI embedding API through Spring AI
+        EmbeddingResponse response = embeddingClient.embed(text);
+
+        // Extract first embedding (since we embed one string)
+        List<Double> vector = response.getResults().get(0).getOutput();
+
+        // Convert to primitive double[]
+        return vector.stream().mapToDouble(Double::doubleValue).toArray();
+    }
+}
+
+=====================================================
+
+@Service
+public class RagService {
+
+    private final ChatClient chatClient;
+    private final EmbeddingClient embeddingClient;
+
+    public RagService(ChatClient chatClient, EmbeddingClient embeddingClient) {
+        this.chatClient = chatClient;
+        this.embeddingClient = embeddingClient;
+    }
+
+    private double[] getQueryEmbedding(String text) {
+        return embeddingClient.embed(text)
+                              .getResults()
+                              .get(0)
+                              .getOutput()
+                              .stream()
+                              .mapToDouble(Double::doubleValue)
+                              .toArray();
+    }
+}
+
+
+
+==================================
+import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.ai.openai.OpenAiEmbeddingModel;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class EmbeddingConfig {
+
+    @Bean
+    public EmbeddingClient embeddingClient(OpenAiApi openAiApi) {
+        return new OpenAiEmbeddingModel(openAiApi);
+    }
+}
+
+
+===================================================
+
+Service Code (bulk embedding + insert)
+
+package com.example.ai.service;
+
+import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.List;
+
+@Service
+public class DocumentIngestService {
+
+    private final EmbeddingClient embeddingClient;
+    private final String jdbcUrl = "jdbc:postgresql://localhost:5432/postgres";
+    private final String dbUser = "postgres";
+    private final String dbPass = "Shaik";
+
+    public DocumentIngestService(EmbeddingClient embeddingClient) {
+        this.embeddingClient = embeddingClient;
+    }
+
+    /**
+     * Embed multiple documents and insert into Postgres+pgvector table.
+     */
+    public void ingestDocuments(List<String> docs) throws Exception {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, dbUser, dbPass)) {
+            String sql = "INSERT INTO documents (content, embedding) VALUES (?, ?::vector)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                for (String doc : docs) {
+                    // 1. Get embedding from Spring AI
+                    List<Double> vector = embeddingClient.embed(doc)
+                            .getResults().get(0).getOutput();
+
+                    // 2. Convert to Postgres array string "[0.1,0.2,...]"
+                    StringBuilder sb = new StringBuilder("[");
+                    for (int i = 0; i < vector.size(); i++) {
+                        if (i > 0) sb.append(",");
+                        sb.append(vector.get(i));
+                    }
+                    sb.append("]");
+                    String vecLiteral = sb.toString();
+
+                    // 3. Bind parameters
+                    ps.setString(1, doc);
+                    ps.setString(2, vecLiteral);
+
+                    ps.addBatch();
+                }
+
+                ps.executeBatch();
+            }
+        }
+    }
+}
+
+=====================================
+
+
+Example Usage (startup load)
+
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class DemoLoader implements CommandLineRunner {
+
+    private final DocumentIngestService ingestService;
+
+    public DemoLoader(DocumentIngestService ingestService) {
+        this.ingestService = ingestService;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        List<String> docs = List.of(
+                "Spring AI makes it easy to connect LLMs to enterprise data.",
+                "Postgres with pgvector allows similarity search over embeddings.",
+                "RAG pattern combines retrieval with generative AI.",
+                "Java developers can integrate AI using familiar Spring Boot patterns."
+        );
+        ingestService.ingestDocuments(docs);
+        System.out.println("✅ Documents ingested successfully");
+    }
+}
+
